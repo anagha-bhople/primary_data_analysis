@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 REQUIREMENTS = ['numpy','pandas','matplotlib','six','plotly',
@@ -6,13 +6,14 @@ REQUIREMENTS = ['numpy','pandas','matplotlib','six','plotly',
 
 # calling the setup function
 setup(name='primarydataanalysis',
-	version='1.0.0',
+	version='0.0.1',
 	description='Primary data analysis for pandas dataframe',
 	long_description='Primary data analysis for pandas dataframe',
 	url='https://github.com/anagha-bhople/primary_data_analysis',
 	author='Anagha Bhople',
 	author_email='bhoplea34@gmail.com',
 	license='MIT',
+    packages=find_packages(),
 	install_requires=REQUIREMENTS,
 	keywords='data analysis eda pandas'
 	)
