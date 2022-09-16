@@ -5,7 +5,7 @@ REQUIREMENTS = ['numpy','pandas','matplotlib','six','plotly',
 'statsmodels','seaborn','sklearn', 'setuptools']
 
 # calling the setup function
-setup(name='primarydataanalysis',
+setup(name='primary-data-analysis',
 	version='0.0.1',
 	description='Primary data analysis for pandas dataframe',
 	long_description='Primary data analysis for pandas dataframe',
