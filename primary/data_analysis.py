@@ -8,6 +8,8 @@ import statsmodels.api as sm
 from sklearn.preprocessing import LabelEncoder
 from scipy.stats import chi2_contingency
 import os
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.inspection import permutation_importance
 
 
 def convert_plotly_plots_to_html(fig, no, path):
@@ -66,8 +68,10 @@ def numerical_analysis(df):
     non_missing_values.rename({0: 'Non_missing_values'}, axis=1, inplace=True)
     fill_rate = ((1-((df.isnull().sum())/len(df)))*100).reset_index()
     fill_rate.rename({0: "Fill_rate_percent"}, axis=1, inplace=True)
-    numerical_analyis = count_columns.merge(unique_values_columns).merge(
-        duplicate_values).merge(missing_values).merge(non_missing_values).merge(fill_rate)
+    data_types = df.dtypes.astype("string").reset_index()
+    data_types.rename({0: "Data_types"}, axis=1, inplace=True)
+    numerical_analyis = count_columns.merge(unique_values_columns).merge(duplicate_values).merge(
+        missing_values).merge(non_missing_values).merge(fill_rate).merge(data_types)
     numerical_analyis = numerical_analyis[:-1].round(2)
     return numerical_analyis
 
@@ -130,6 +134,47 @@ def general_data_statistics(df):
     general_info.rename({"index": 'Dataset_statistics'}, axis=1, inplace=True)
     general_info.rename({"0": 'Values'}, axis=1, inplace=True)
     return general_info
+
+
+def Feature_Importance(df_train, df_test, model):
+    p = model.feature_importances_
+    # Create a dataframe to store the featues and their corresponding importances
+    feature_rank = pd.DataFrame({'feature_name': df_train.columns,
+                                   'feature_importance': model.feature_importances_})
+    feature_rank = feature_rank.sort_values(
+        'feature_importance', ascending=True)
+    fig = px.bar(feature_rank, x="feature_importance", y="feature_name", orientation='h',
+                 color="feature_importance", color_continuous_scale='Plotly3',  title="Feature Importance")
+    return fig
+
+
+def Permutation_Importance(df_train, df_test, model):
+    result = permutation_importance(model, df_train, df_test)
+    # Create a dataframe to store the featues and their corresponding importances
+    feature_rank = pd.DataFrame({'feature_name': df_train.columns,
+                                   'permutation_importance': result.importances_mean})
+    feature_rank = feature_rank.sort_values(
+        'permutation_importance', ascending=True)
+    fig = px.bar(feature_rank, x="permutation_importance", y="feature_name", orientation='h',
+                 color="permutation_importance", color_continuous_scale='Plotly3', title="Permutation Importance")
+    return fig
+
+ def Correlation_With_Target(df, target):
+    corr = df.corrwith(df[target], axis=0)
+    val = [str(round(v ,2) *100) + '%' for v in corr.values]
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(y=corr.index, x= corr.values,
+                         orientation='h',
+                         marker_color = '#9900cc',
+                         text = val,
+                         textposition = 'outside',
+                         textfont_color = 'black'))
+    fig.update_layout(title = "Correlation with Target",
+                      width = 800,
+                      height = 3000)
+    fig.update_xaxes(range=[-2,2])
+    return fig   
 
 
 html_string_start = '''
@@ -239,7 +284,7 @@ def get_all_data_analysis(df, target, path="."):
 
     # histogram for distribution check
     for col in list(df.columns):
-        fig = px.histogram(df, x=col, color=target, title='Histogram for ' +
+        fig = px.histogram(df, x=col, color=target, marginal="violin", title='Histogram for ' +
                            col + ' Distribution w.r.t target Value')
         no = convert_plotly_plots_to_html(fig, no, path)
 
@@ -252,6 +297,24 @@ def get_all_data_analysis(df, target, path="."):
     stat_result_fig = convert_df_to_plotly_table(
         stat_result, title="p-value For Statastical Significance of Variables")
     no = convert_plotly_plots_to_html(stat_result_fig, no, path)
+
+    # classifier
+    X=df[[col for col in list(df.columns) if col not in [target]]]
+    y=df[target]
+    model = RandomForestClassifier()
+    model.fit(X,y)
+   
+    # feature importance
+    fig =Feature_Importance(X,y, model) 
+    no = convert_plotly_plots_to_html(fig, no, path)
+    
+    # permutation importance
+    fig =Permutation_Importance(X,y, model) 
+    no = convert_plotly_plots_to_html(fig, no, path)
+    
+    # correlation with target variable
+    fig = Correlation_With_Target(df,target)
+    no = convert_plotly_plots_to_html(fig, no, path)
 
     # pair plot
     df = df[cols]
