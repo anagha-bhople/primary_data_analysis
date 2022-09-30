@@ -23,5 +23,5 @@ get_all_data_analysis(dataframe, target="target_class_label", path="./desired_fo
 
 ## Prerequisites
 
-Install all requirements
-better to label encode ordinal categorical variables
+    1. Install all requirements
+    2. better to label encode ordinal categorical variables
