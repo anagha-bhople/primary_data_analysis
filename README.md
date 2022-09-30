@@ -1,13 +1,13 @@
-Setting up package
+## Setting up package
 
     python3 setup.py sdist bdist_wheel
 
-Pushing to PYPI
+## Pushing to PYPI
 
     pip install twine
     python -m twine upload dist/*
 
-How to use:
+# How to use:
 
 ## Install
 
