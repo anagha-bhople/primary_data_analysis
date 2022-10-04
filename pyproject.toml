@@ -1,6 +1,6 @@
 [project]
 name = "primary-data-analysis"
-version = "0.0.2a"
+version = "0.0.2b"
 authors = [
   { name="Anagha Bhople", email="bhoplea34@gmail.com" },
   { name="Swapnil Dewalkar", email="swapnildewalkar1995@gmail.com" }

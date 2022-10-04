@@ -140,7 +140,7 @@ def Feature_Importance(df_train, df_test, model):
     p = model.feature_importances_
     # Create a dataframe to store the featues and their corresponding importances
     feature_rank = pd.DataFrame({'feature_name': df_train.columns,
-                                   'feature_importance': model.feature_importances_})
+                                 'feature_importance': model.feature_importances_})
     feature_rank = feature_rank.sort_values(
         'feature_importance', ascending=True)
     fig = px.bar(feature_rank, x="feature_importance", y="feature_name", orientation='h',
@@ -152,29 +152,42 @@ def Permutation_Importance(df_train, df_test, model):
     result = permutation_importance(model, df_train, df_test)
     # Create a dataframe to store the featues and their corresponding importances
     feature_rank = pd.DataFrame({'feature_name': df_train.columns,
-                                   'permutation_importance': result.importances_mean})
+                                 'permutation_importance': result.importances_mean})
     feature_rank = feature_rank.sort_values(
         'permutation_importance', ascending=True)
     fig = px.bar(feature_rank, x="permutation_importance", y="feature_name", orientation='h',
                  color="permutation_importance", color_continuous_scale='Plotly3', title="Permutation Importance")
     return fig
 
- def Correlation_With_Target(df, target):
+
+def Correlation_With_Target(df, target):
     corr = df.corrwith(df[target], axis=0)
-    val = [str(round(v ,2) *100) + '%' for v in corr.values]
+    val = [str(round(v, 2) * 100) + '%' for v in corr.values]
 
     fig = go.Figure()
-    fig.add_trace(go.Bar(y=corr.index, x= corr.values,
+    fig.add_trace(go.Bar(y=corr.index, x=corr.values,
                          orientation='h',
-                         marker_color = '#9900cc',
-                         text = val,
-                         textposition = 'outside',
-                         textfont_color = 'black'))
-    fig.update_layout(title = "Correlation with Target",
-                      width = 800,
-                      height = 3000)
-    fig.update_xaxes(range=[-2,2])
-    return fig   
+                         marker_color='#9900cc',
+                         text=val,
+                         textposition='outside',
+                         textfont_color='black'))
+    fig.update_layout(title="Correlation with Target",
+                      width=800,
+                      height=3000)
+    fig.update_xaxes(range=[-2, 2])
+    return fig
+
+
+def preprocessing_df(df):
+    cols = list(df._get_numeric_data().columns)
+    object_cols = [col for col in list(df.columns) if col not in cols]
+    df[cols] = df[cols].fillna(0)
+    df[object_cols] = df[object_cols].apply(
+        lambda x: x.fillna(x.value_counts().index[0]))
+    labelencoder = LabelEncoder()
+    for i in object_cols:
+        df[i] = labelencoder.fit_transform(df[i])
+    return df
 
 
 html_string_start = '''
@@ -289,11 +302,8 @@ def get_all_data_analysis(df, target, path="."):
     fig = correlation_matrix(df)
     no = convert_plotly_plots_to_html(fig, no, path)
 
-    # label encode categorical variables
-    labelencoder= LabelEncoder()
-    object_cols = [col for col in list(df.columns) if col not in cols]
-    for i in object_cols:
-        df[i] = labelencoder.fit_transform(df[i])
+    # preprocess data
+    df = preprocessing_df(df)
 
     # Stastical summary for classification problem showing many p-value for statastical significance of variables
     stat_result = stastical_summary(df, target)
@@ -302,30 +312,29 @@ def get_all_data_analysis(df, target, path="."):
     no = convert_plotly_plots_to_html(stat_result_fig, no, path)
 
     # classifier
-    X=df[[col for col in list(df.columns) if col not in [target]]]
-    y=df[target]
+    X = df[[col for col in list(df.columns) if col not in [target]]]
+    y = df[target]
     model = RandomForestClassifier()
-    model.fit(X,y)
-   
+    model.fit(X, y)
+
     # feature importance
-    fig =Feature_Importance(X,y, model) 
+    fig = Feature_Importance(X, y, model)
     no = convert_plotly_plots_to_html(fig, no, path)
-    
+
     # permutation importance
-    fig =Permutation_Importance(X,y, model) 
+    fig = Permutation_Importance(X, y, model)
     no = convert_plotly_plots_to_html(fig, no, path)
-    
+
     # correlation with target variable
-    fig = Correlation_With_Target(df,target)
+    fig = Correlation_With_Target(df, target)
     no = convert_plotly_plots_to_html(fig, no, path)
 
     # pair plot
-    df = df[cols]
     fig = ff.create_scatterplotmatrix(df, diag='histogram', index=target, colormap='Rainbow',
                                       colormap_type='cat', height=1500, width=1500)
     no = convert_plotly_plots_to_html(fig, no, path)
 
-    with open(path+'/primary_data_analyis.html', 'w') as f:
+    with open(path+'/DATA_ANALYSIS_REPORT.html', 'w') as f:
         f.write(html_string_start)
         for n in range(no-1):
             i = (n+1)
