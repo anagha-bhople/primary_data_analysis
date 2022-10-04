@@ -19,3 +19,8 @@
     3. path = name of folder (optional)
 
 ### Example
+
+## Output
+
+    1. Output is in the form of html file which will be saved in the current folder or given path.
+    2. All plotly graphs will saved in the current folder or given path.
