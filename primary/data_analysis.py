@@ -238,9 +238,6 @@ def get_all_data_analysis(df, target, path="."):
     if not os.path.exists(path):
         os.makedirs(path)
 
-    labelencoder = LabelEncoder()
-    df[target] = labelencoder.fit_transform(df[target])
-
     # sample values for each column of dataframe
     sample_top = df.head(5)
     sample_top = sample_top.T
@@ -291,6 +288,12 @@ def get_all_data_analysis(df, target, path="."):
     # correlation heatmap plotly
     fig = correlation_matrix(df)
     no = convert_plotly_plots_to_html(fig, no, path)
+
+    # label encode categorical variables
+    labelencoder= LabelEncoder()
+    object_cols = [col for col in list(df.columns) if col not in cols]
+    for i in object_cols:
+        df[i] = labelencoder.fit_transform(df[i])
 
     # Stastical summary for classification problem showing many p-value for statastical significance of variables
     stat_result = stastical_summary(df, target)

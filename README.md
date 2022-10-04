@@ -1,27 +1,21 @@
-## Setting up package
+#### This Package is designed to get overall understanding of dataframe.
 
-    python3 setup.py sdist bdist_wheel
+## Installation
 
-## Pushing to PYPI
+    pip install primary-data-analysis
 
-    pip install twine
-    python -m twine upload dist/*
+## Package Import
 
-# How to use:
+    from primary import get_all_data_analysis
 
-## Install
+## Function
 
-pip install primary-data-analysis
+    get_all_data_analysis(dataframe, target="target_class_label", path="./desired_folder_name")
 
-## Import
+### Arguments
 
-from primary import get_all_data_analysis
+    1. Dataframe name (required)
+    2. Target label or any categorical variable label (required)
+    3. path = name of folder (optional)
 
-## Call function
-
-get_all_data_analysis(dataframe, target="target_class_label", path="./desired_folder_name")
-
-## Prerequisites
-
-    1. Install all requirements
-    2. better to label encode ordinal categorical variables
+### Example
