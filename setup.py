@@ -6,7 +6,7 @@ REQUIREMENTS = ['numpy', 'pandas', 'matplotlib', 'six', 'plotly',
 
 # calling the setup function
 setup(name='primary-data-analysis',
-      version='0.0.2b',
+      version='0.0.2',
       description='Primary data analysis for pandas dataframe',
       long_description='Primary data analysis for pandas dataframe',
       url='https://github.com/anagha-bhople/primary_data_analysis',

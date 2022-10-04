@@ -72,7 +72,6 @@ def numerical_analysis(df):
     data_types.rename({0: "Data_types"}, axis=1, inplace=True)
     numerical_analyis = count_columns.merge(unique_values_columns).merge(duplicate_values).merge(
         missing_values).merge(non_missing_values).merge(fill_rate).merge(data_types)
-    numerical_analyis = numerical_analyis[:-1].round(2)
     return numerical_analyis
 
 

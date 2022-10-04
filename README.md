@@ -20,6 +20,9 @@
 
 ### Example
 
+    df = pd.read_csv('Iris.csv')
+    get_all_data_analysis(df, target="Species", path="iris_analysis")
+
 ## Output
 
     1. Output is in the form of html file which will be saved in the current folder or given path.
