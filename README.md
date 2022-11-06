@@ -6,7 +6,8 @@
 
 ## Package Import
 
-    from primary import get_all_data_analysis
+    from primary import get_all_data_analysis_classification
+    from primary import get_all_data_analysis_regression
 
 ## Function
 

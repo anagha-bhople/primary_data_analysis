@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: primary-data-analysis
-Version: 0.0.3
+Version: 0.0.4
 Summary: Tools of doing primary data analysis
 Home-page: https://github.com/anagha-bhople/primary_data_analysis
 Author: Anagha Bhople
@@ -43,7 +43,8 @@ Description-Content-Type: text/markdown
 
 ## Package Import
 
-    from primary import get_all_data_analysis
+    from primary import get_all_data_analysis_classification
+    from primary import get_all_data_analysis_regression
 
 ## Function
 
