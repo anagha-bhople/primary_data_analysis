@@ -9,6 +9,7 @@ from sklearn.preprocessing import LabelEncoder
 from scipy.stats import chi2_contingency
 import os
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.inspection import permutation_importance
 
 
@@ -244,7 +245,7 @@ html_string_end = '''
 '''
 
 
-def get_all_data_analysis(df, target, path="."):
+def get_all_data_analysis_classification(df, target, path="."):
     no = 1
 
     if not os.path.exists(path):
@@ -333,7 +334,109 @@ def get_all_data_analysis(df, target, path="."):
                                       colormap_type='cat', height=1500, width=1500)
     no = convert_plotly_plots_to_html(fig, no, path)
 
-    with open(path+'/DATA_ANALYSIS_REPORT.html', 'w') as f:
+    with open(path+'/CLASSIFICATION_DATA_ANALYSIS_REPORT.html', 'w') as f:
+        f.write(html_string_start)
+        for n in range(no-1):
+            i = (n+1)
+            s = f'<iframe id="iframe{i}" sandbox="allow-scripts allow-same-origin allow-modals"  src="file{i}.html"></iframe>\n'
+            f.write(s)
+
+        f.write(html_string_end)
+
+
+def get_all_data_analysis_regression(df, target, path="."):
+    no = 1
+
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    # first sample of dataset
+    sample_top = df.head(5)
+    sample_top = sample_top.T
+    sample_top = sample_top.reset_index()
+    sample_top.rename({'index': 'Column_name'}, axis=1, inplace=True)
+    fig_sample_top = convert_df_to_plotly_table(
+        sample_top, title="Data samples for each column")
+    no = convert_plotly_plots_to_html(fig_sample_top, no, path)
+
+    # general data stats
+    data_stats = general_data_statistics(df)
+    fig_data_stats = convert_df_to_plotly_table(
+        data_stats, title="General Data Statistics")
+    no = convert_plotly_plots_to_html(fig_data_stats, no, path)
+
+    # Describe dataset
+    describe = dataframe_describe(df)
+    fig_desc = convert_df_to_plotly_table(
+        describe, title="Dataset Description")
+    no = convert_plotly_plots_to_html(fig_desc, no, path)
+
+    # Numerical analyis for dataset
+    numerical_analyis = numerical_analysis(df)
+    fig_num_analyis = convert_df_to_plotly_table(
+        numerical_analyis, title='Numerical Analysis for Dataset')
+    no = convert_plotly_plots_to_html(fig_num_analyis, no, path)
+
+    # Distribution of target value
+    fig = px.histogram(df, x=target, marginal="violin",
+                       title='Histogram for ' + target + ' Distribution')
+    no = convert_plotly_plots_to_html(fig, no, path)
+
+    # box plot for outlier detection
+    cols = list(df._get_numeric_data().columns)
+    for col in cols:
+        fig = px.box(df, x=col, title='Box plot for ' +
+                     col + ' outlier detection')
+        fig.update_traces(boxpoints='all', jitter=.3)
+        no = convert_plotly_plots_to_html(fig, no, path)
+
+    # histogram for distribution check
+    for col in list(df.columns):
+        fig = px.histogram(df, x=col, marginal="violin",
+                           title='Histogram for ' + col + ' Distribution')
+        no = convert_plotly_plots_to_html(fig, no, path)
+
+    # label encode categorical variables
+    labelencoder = LabelEncoder()
+    object_cols = [col for col in list(df.columns) if col not in cols]
+    for i in object_cols:
+        df[i] = labelencoder.fit_transform(df[i])
+
+    # correlation heatmap plotly
+    fig = correlation_matrix(df)
+    no = convert_plotly_plots_to_html(fig, no, path)
+    fig.show()
+
+    # Stastical summary for classification problem showing many p-value for statastical significance of variables
+    stat_result = stastical_summary(df, target)
+    stat_result_fig = convert_df_to_plotly_table(
+        stat_result, title="p-value For Statastical Significance of Variables")
+    no = convert_plotly_plots_to_html(stat_result_fig, no, path)
+
+    # classifier
+    X = df[[col for col in list(df.columns) if col not in [target]]]
+    y = df[target]
+    model = RandomForestRegressor()
+    model.fit(X, y)
+
+    # feature importance
+    fig = Feature_Importance(X, y, model)
+    no = convert_plotly_plots_to_html(fig, no, path)
+
+    # permutation importance
+    fig = Permutation_Importance(X, y, model)
+    no = convert_plotly_plots_to_html(fig, no, path)
+
+    # correlation with target variable
+    fig = Correlation_With_Target(df, target)
+    no = convert_plotly_plots_to_html(fig, no, path)
+
+    # pair plot
+    fig = ff.create_scatterplotmatrix(df, diag='histogram', colormap='Rainbow',
+                                      colormap_type='cat', height=1500, width=1500)
+    no = convert_plotly_plots_to_html(fig, no, path)
+
+    with open(path+'/REGRESSION_DATA_ANALYSIS_REPORT.html', 'w') as f:
         f.write(html_string_start)
         for n in range(no-1):
             i = (n+1)

@@ -10,12 +10,22 @@
 
 ## Function
 
-    get_all_data_analysis(dataframe, target="target_class_label", path="./desired_folder_name")
+    get_all_data_analysis_classification(dataframe, target="target_class_label", path="./desired_folder_name")
 
 ### Arguments
 
     1. Dataframe name (required)
     2. Target label or any categorical variable label (required)
+    3. path = name of folder (optional)
+
+## Function
+
+    get_all_data_analysis_regression(dataframe, target="target_continious", path="./desired_folder_name")
+
+### Arguments
+
+    1. Dataframe name (required)
+    2. Target continious feature name (required)
     3. path = name of folder (optional)
 
 ### Example
